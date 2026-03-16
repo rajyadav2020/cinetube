@@ -17,7 +17,6 @@ const registerUser = asynchandler(async (req,res)=>{
 
     //if a data is coming from forms than it can easiy be accessed by req.body
     const {fullname,email,username,password} = req.body
-    console.log("email" , email );
 
     if(
         [fullname,email,username,password].some((field) => field?.trim()=== "")
@@ -26,17 +25,18 @@ const registerUser = asynchandler(async (req,res)=>{
         throw new Apierror(400, "all fields are compulsory or required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{username},{email}]
     } )
 
     if(existedUser){
         throw new Apierror(409, "User already exists")
     }
+    
 
-    const avatarlocalpath = req.files?.avatar[0]?.path 
+    const avatarlocalpath = req.files?.avatar?.[0]?.path;
 
-    const coverimagelocalpath = req.files?.coverImage[0]?.path;
+    const coverimagelocalpath = req.files?.coverimage?.[0]?.path
 
     if(!avatarlocalpath){
         throw new Apierror(400, "Avatar file is required");
@@ -46,9 +46,9 @@ const registerUser = asynchandler(async (req,res)=>{
     const coverimage = await uploadoncloudinary(coverimagelocalpath)
 
     if(!avatar){
-                throw new Apierror(400, "Avatar file is required");
-
+        throw new Apierror(400, "Error while uploading avatar");
     }
+   
 
     const user = await User.create({
         fullname,
@@ -71,7 +71,9 @@ const registerUser = asynchandler(async (req,res)=>{
     return res.status(201).json(
         new Apiresponse(200, createduser, "user registered successfully")
     )
+    
 
 } )
+
 
 export {registerUser}

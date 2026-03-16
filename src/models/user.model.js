@@ -21,13 +21,6 @@ const userSchema = new Schema({
         trim: true,
     },
 
-    email:{
-        type:String,
-        required:true,
-        index:true,
-        trim: true
-    },
-
     avatar:{
         type:String, //cloudinary
         required:true,
@@ -57,13 +50,11 @@ const userSchema = new Schema({
     }
 },{timestamps:true})
 
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
 
-    this.password = await bcrypt.hash(this.password,10)
-    next()
-
-})
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 
 userSchema.methods.isPasswordcorrect = async function(password){
